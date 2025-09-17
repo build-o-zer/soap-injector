@@ -38,7 +38,17 @@ docker run --detach --rm --name echo-server -p 10000:8080 -e LOG_HTTP_BODY='true
 Now you have a simple SOAP endpoint running locally on port 10000.
 This endpoint will echo back any SOAP messages you send to it, which is useful for testing this python tool.
 
-### 2. Run the Injector
+**Monitor the SOAP endpoint logs:**
+
+```bash
+# View real-time logs from the echo server
+docker logs -f echo-server
+
+# View last 50 lines and follow new logs
+docker logs -f --tail 50 echo-server
+```
+
+### 3. Run the Injector
 
 ```bash
 # Send a single SOAP message
