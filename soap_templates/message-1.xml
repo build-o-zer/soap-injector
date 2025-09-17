@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <ns:Request xmlns:ns="http://example.com/service">
+      <ns:MessageId>Message-1:{{UUID}}</ns:MessageId>
+      <ns:Timestamp>{{TIMESTAMP}}</ns:Timestamp>
+      <ns:TransactionId>TXN_{{RANDOM_ID}}</ns:TransactionId>
+      <ns:Data>
+        <ns:Reference>REF_{{UUID_NO_DASH}}</ns:Reference>
+      </ns:Data>
+    </ns:Request>
+  </soap:Body>
+</soap:Envelope>
