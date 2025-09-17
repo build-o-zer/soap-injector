@@ -12,7 +12,7 @@ A Python tool for injecting SOAP messages with automatic variable substitution. 
 
 ## Quick Start
 
-### Setup Python Virtual Environment
+### 1. Setup Python Virtual Environment
 
 ```bash
 # Create virtual environment
@@ -27,26 +27,28 @@ source .venv/bin/activate  # On Linux/macOS
 pip install requests
 ```
 
-### Setup a dockerized SOAP Endpoint (Optional) for Testing
+> **⚠️ Important**: Always use `.venv/bin/python` instead of just `python` to ensure you're using the virtual environment's Python interpreter with the correct dependencies installed. All examples in this README use the virtual environment path.
+
+### 2. Setup a dockerized SOAP Endpoint (Optional) for Testing
 
 ```bash
-$  docker run --detach --rm --name echo-server -p 10000:8080 -e LOG_HTTP_BODY='true' jmalloc/echo-server
+docker run --detach --rm --name echo-server -p 10000:8080 -e LOG_HTTP_BODY='true' jmalloc/echo-server
 ```
 
 Now you have a simple SOAP endpoint running locally on port 10000.
 This endpoint will echo back any SOAP messages you send to it, which is useful for testing this python tool.
 
-### Run the Injector
+### 2. Run the Injector
 
 ```bash
 # Send a single SOAP message
-python soap_injector.py http://localhost:10000/soap-endpoint
+.venv/bin/python soap_injector.py http://localhost:10000/soap-endpoint
 
 # Send multiple messages with delay
-python soap_injector.py http://localhost:10000/soap-endpoint --count 10 --delay 1.0
+.venv/bin/python soap_injector.py http://localhost:10000/soap-endpoint --count 10 --delay 1.0
 
 # Use custom template directory
-python soap_injector.py http://localhost:10000/soap-endpoint --soap-dir ./my_templates
+.venv/bin/python soap_injector.py http://localhost:10000/soap-endpoint --soap-dir ./my_templates
 ```
 
 ## Command Line Options
@@ -117,26 +119,26 @@ soap-injector/
 
 ```bash
 # Send one random message
-python soap_injector.py http://localhost:8080/soap
+.venv/bin/python soap_injector.py http://localhost:8080/soap
 
 # Send 5 messages with 2-second delays
-python soap_injector.py http://localhost:8080/soap --count 5 --delay 2
+.venv/bin/python soap_injector.py http://localhost:8080/soap --count 5 --delay 2
 
 # Use verbose logging
-python soap_injector.py http://localhost:8080/soap --verbose
+.venv/bin/python soap_injector.py http://localhost:8080/soap --verbose
 ```
 
 ### Load Testing
 
 ```bash
 # Send 100 messages as fast as possible
-python soap_injector.py http://localhost:8080/soap --count 100
+.venv/bin/python soap_injector.py http://localhost:8080/soap --count 100
 
 # Send 50 messages with 0.5s delay (sustained load)
-python soap_injector.py http://localhost:8080/soap --count 50 --delay 0.5
+.venv/bin/python soap_injector.py http://localhost:8080/soap --count 50 --delay 0.5
 
 # Long timeout for slow endpoints
-python soap_injector.py http://localhost:8080/soap --timeout 60
+.venv/bin/python soap_injector.py http://localhost:8080/soap --timeout 60
 ```
 
 ## Output and Logging
@@ -150,11 +152,20 @@ The tool provides detailed logging including:
 Example output:
 
 ```text
-2025-09-17 14:39:05 [INFO] Chargé 2 fichier(s) SOAP depuis soap_templates
-2025-09-17 14:39:05 [INFO]   - message-2.xml
-2025-09-17 14:39:05 [INFO]   - message-1.xml
-2025-09-17 14:39:05 [INFO] Envoi SOAP [message-1.xml] vers http://localhost:10000/soap-endpoint
-2025-09-17 14:39:05 [INFO] ✓ Succès [message-1.xml] - HTTP 200 - 785 bytes
+2025-09-17 15:15:25 [INFO] 📚 Loaded 2 SOAP file(s) from soap_templates
+2025-09-17 15:15:25 [INFO]    📄 message-2.xml
+2025-09-17 15:15:25 [INFO]    📄 message-1.xml
+2025-09-17 15:15:25 [INFO] 🚀 Starting injection of 3 SOAP message(s)
+2025-09-17 15:17:02 [INFO] ✅ [message-2.xml] → http://localhost:10000/soap-endpoint | HTTP 200 | 785 bytes
+2025-09-17 15:17:02 [INFO] ⏳ Waiting 0.2s before next send...
+2025-09-17 15:17:03 [INFO] ✅ [message-1.xml] → http://localhost:10000/soap-endpoint | HTTP 200 | 785 bytes
+2025-09-17 15:18:51 [INFO] ┌────────────────────────────────────────────────┐
+2025-09-17 15:18:51 [INFO] │ 📊 INJECTION SUMMARY                           │
+2025-09-17 15:18:51 [INFO] ├────────────────────────────────────────────────┤
+2025-09-17 15:18:51 [INFO] │ 🏁 Completed in: 0.00s                         │
+2025-09-17 15:18:51 [INFO] │ ✅ Success: 2/2 (100.0%)                       │
+2025-09-17 15:18:51 [INFO] │ ❌ Failed: 0/2                                 │
+2025-09-17 15:18:51 [INFO] └────────────────────────────────────────────────┘
 ```
 
 ## Troubleshooting
@@ -188,7 +199,7 @@ Example output:
 Use `--verbose` flag to enable debug logging for troubleshooting:
 
 ```bash
-python soap_injector.py http://localhost:8080/soap --verbose
+.venv/bin/python soap_injector.py http://localhost:8080/soap --verbose
 ```
 
 ## License

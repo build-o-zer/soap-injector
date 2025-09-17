@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Injecteur SOAP avec variabilisation automatique
-Envoie des messages SOAP aléatoires avec génération d'UUID et variables personnalisées
+SOAP Injector with automatic variable substitution
+Sends random SOAP messages with UUID generation and custom variables
 """
 
 import os
@@ -19,12 +19,12 @@ import time
 class SOAPInjector:
     def __init__(self, soap_dir: str, endpoint: str, timeout: int = 30):
         """
-        Initialise l'injecteur SOAP
+        Initialize the SOAP injector
         
         Args:
-            soap_dir: Répertoire contenant les fichiers SOAP
-            endpoint: URL de l'endpoint SOAP
-            timeout: Timeout des requêtes HTTP
+            soap_dir: Directory containing SOAP files
+            endpoint: SOAP endpoint URL
+            timeout: HTTP request timeout
         """
         self.soap_dir = Path(soap_dir)
         self.endpoint = endpoint
@@ -32,14 +32,14 @@ class SOAPInjector:
         self.soap_files = []
         self.session = requests.Session()
         
-        # Configuration du logging
+        # Configure logging
         self._setup_logging()
         
-        # Chargement des fichiers SOAP
+        # Load SOAP files
         self._load_soap_files()
     
     def _setup_logging(self):
-        """Configure le système de logging"""
+        """Configure the logging system"""
         logging.basicConfig(
             level=logging.INFO,
             format='%(asctime)s [%(levelname)s] %(message)s',
@@ -48,26 +48,26 @@ class SOAPInjector:
         self.logger = logging.getLogger(__name__)
     
     def _load_soap_files(self):
-        """Charge la liste des fichiers SOAP disponibles"""
+        """Load the list of available SOAP files"""
         if not self.soap_dir.exists():
-            raise FileNotFoundError(f"Répertoire SOAP introuvable: {self.soap_dir}")
+            raise FileNotFoundError(f"📁 SOAP directory not found: {self.soap_dir}")
         
-        # Cherche tous les fichiers XML dans le répertoire
+        # Search for all XML files in the directory
         self.soap_files = list(self.soap_dir.glob("*.xml"))
         
         if not self.soap_files:
-            raise ValueError(f"Aucun fichier XML trouvé dans: {self.soap_dir}")
+            raise ValueError(f"📄 No XML files found in: {self.soap_dir}")
         
-        self.logger.info(f"Chargé {len(self.soap_files)} fichier(s) SOAP depuis {self.soap_dir}")
+        self.logger.info(f"📚 Loaded {len(self.soap_files)} SOAP file(s) from {self.soap_dir}")
         for file in self.soap_files:
-            self.logger.info(f"  - {file.name}")
+            self.logger.info(f"   📄 {file.name}")
     
     def _generate_variables(self) -> Dict[str, str]:
         """
-        Génère les variables de remplacement
+        Generate replacement variables
         
         Returns:
-            Dictionnaire des variables avec leurs valeurs
+            Dictionary of variables with their values
         """
         now = datetime.now()
         
@@ -84,7 +84,7 @@ class SOAPInjector:
             'TIME': now.strftime('%H:%M:%S'),
             'EPOCH': str(int(now.timestamp())),
             
-            # Identifiants aléatoires
+            # Random identifiers
             'RANDOM_ID': str(random.randint(100000, 999999)),
             'RANDOM_ALPHA': ''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ', k=8)),
             'RANDOM_ALPHANUM': ''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=10)),
@@ -94,16 +94,16 @@ class SOAPInjector:
     
     def _replace_variables(self, content: str, variables: Dict[str, str]) -> str:
         """
-        Remplace les variables dans le contenu SOAP
+        Replace variables in SOAP content
         
-        Format supporté: {{VARIABLE_NAME}}
+        Supported format: {{VARIABLE_NAME}}
         
         Args:
-            content: Contenu SOAP original
-            variables: Variables à remplacer
+            content: Original SOAP content
+            variables: Variables to replace
             
         Returns:
-            Contenu avec variables remplacées
+            Content with replaced variables
         """
         result = content
         
@@ -114,37 +114,35 @@ class SOAPInjector:
         return result
     
     def _select_random_soap(self) -> Path:
-        """Sélectionne un fichier SOAP au hasard"""
+        """Select a random SOAP file"""
         return random.choice(self.soap_files)
     
     def _load_soap_content(self, soap_file: Path) -> str:
-        """Charge le contenu d'un fichier SOAP"""
+        """Load the content of a SOAP file"""
         try:
             with open(soap_file, 'r', encoding='utf-8') as f:
                 return f.read()
         except Exception as e:
-            self.logger.error(f"Erreur lecture {soap_file.name}: {e}")
+            self.logger.error(f"❌ Error reading {soap_file.name}: {e}")
             raise
     
     def _send_soap_request(self, content: str, soap_file: str) -> bool:
         """
-        Envoie une requête SOAP
+        Send a SOAP request
         
         Args:
-            content: Contenu SOAP à envoyer
-            soap_file: Nom du fichier SOAP pour le logging
+            content: SOAP content to send
+            soap_file: SOAP file name for logging
             
         Returns:
-            True si succès (HTTP 200), False sinon
+            True if success (HTTP 200), False otherwise
         """
         headers = {
             'Content-Type': 'text/xml; charset=utf-8',
-            'SOAPAction': '""',  # SOAPAction vide par défaut
+            'SOAPAction': '""',  # Empty SOAPAction by default
         }
         
         try:
-            self.logger.info(f"Envoi SOAP [{soap_file}] vers {self.endpoint}")
-            
             response = self.session.post(
                 self.endpoint,
                 data=content.encode('utf-8'),
@@ -152,69 +150,67 @@ class SOAPInjector:
                 timeout=self.timeout
             )
             
-            # Vérification du statut HTTP
+            # HTTP status verification
             if response.status_code == 200:
-                self.logger.info(f"✓ Succès [{soap_file}] - HTTP {response.status_code} - {len(response.content)} bytes")
+                self.logger.info(f"✅ [{soap_file}] → {self.endpoint} | HTTP {response.status_code} | {len(response.content)} bytes")
                 return True
             else:
-                self.logger.warning(f"✗ Échec [{soap_file}] - HTTP {response.status_code} - {response.reason}")
-                self.logger.debug(f"Réponse: {response.text[:200]}...")
+                self.logger.warning(f"⚠️ [{soap_file}] → {self.endpoint} | HTTP {response.status_code} | {response.reason}")
+                self.logger.debug(f"Response: {response.text[:200]}...")
                 return False
                 
         except requests.exceptions.Timeout:
-            self.logger.error(f"✗ Timeout [{soap_file}] - Délai dépassé ({self.timeout}s)")
+            self.logger.error(f"⏰ [{soap_file}] → {self.endpoint} | Timeout after {self.timeout}s")
             return False
         except requests.exceptions.ConnectionError:
-            self.logger.error(f"✗ Erreur connexion [{soap_file}] - Endpoint inaccessible")
+            self.logger.error(f"🔌 [{soap_file}] → {self.endpoint} | Connection failed - endpoint unreachable")
             return False
         except Exception as e:
-            self.logger.error(f"✗ Erreur inattendue [{soap_file}] - {type(e).__name__}: {e}")
+            self.logger.error(f"💥 [{soap_file}] → {self.endpoint} | Unexpected error: {type(e).__name__}: {e}")
             return False
     
     def inject_single(self) -> bool:
         """
-        Injecte un seul message SOAP
+        Inject a single SOAP message
         
         Returns:
-            True si succès, False sinon
+            True if success, False otherwise
         """
-        # Sélection aléatoire d'un fichier SOAP
+        # Random selection of a SOAP file
         soap_file = self._select_random_soap()
         
-        # Chargement du contenu
+        # Load content
         content = self._load_soap_content(soap_file)
         
-        # Génération des variables
+        # Generate variables
         variables = self._generate_variables()
         
-        # Remplacement des variables
+        # Replace variables
         processed_content = self._replace_variables(content, variables)
         
-        # Log des variables utilisées (debug)
-        self.logger.debug(f"Variables générées: {list(variables.keys())}")
+        # Log generated variables (debug)
+        self.logger.debug(f"Generated variables: {list(variables.keys())}")
         
-        # Envoi de la requête
+        # Send request
         return self._send_soap_request(processed_content, soap_file.name)
     
     def inject_multiple(self, count: int, delay: float = 0.0) -> Dict[str, int]:
         """
-        Injecte plusieurs messages SOAP
+        Inject multiple SOAP messages
         
         Args:
-            count: Nombre de messages à envoyer
-            delay: Délai entre chaque envoi (secondes)
+            count: Number of messages to send
+            delay: Delay between each send (seconds)
             
         Returns:
-            Statistiques des envois
+            Send statistics
         """
         stats = {'success': 0, 'failed': 0, 'total': count}
         
-        self.logger.info(f"Début injection de {count} message(s) SOAP")
+        self.logger.info(f"🚀 Starting injection of {count} SOAP message(s)")
         start_time = time.time()
         
         for i in range(1, count + 1):
-            self.logger.info(f"--- Injection {i}/{count} ---")
-            
             success = self.inject_single()
             
             if success:
@@ -222,36 +218,52 @@ class SOAPInjector:
             else:
                 stats['failed'] += 1
             
-            # Délai entre les envois
+            # Delay between sends
             if delay > 0 and i < count:
-                self.logger.info(f"Attente {delay}s avant prochain envoi...")
+                self.logger.info(f"⏳ Waiting {delay}s before next send...")
                 time.sleep(delay)
         
         elapsed = time.time() - start_time
         success_rate = (stats['success'] / stats['total']) * 100
         
-        self.logger.info("="*50)
-        self.logger.info(f"Injection terminée en {elapsed:.2f}s")
-        self.logger.info(f"Succès: {stats['success']}/{stats['total']} ({success_rate:.1f}%)")
-        self.logger.info(f"Échecs: {stats['failed']}/{stats['total']}")
-        self.logger.info("="*50)
+        # Create a nice statistics box
+        box_width = 50
+        
+        def format_box_line(text):
+            """Format a line to fit perfectly in the box"""
+            # Calculate actual display width accounting for emojis
+            visual_length = len(text)
+            # Each emoji takes 2 display positions but counts as 1 in string length
+            emoji_count = sum(1 for char in text if ord(char) > 127)
+            visual_length += emoji_count
+            
+            padding_needed = box_width - 3 - visual_length  # 3 for "│ " and "│"
+            return f"│ {text}{' ' * padding_needed}│"
+        
+        self.logger.info("┌" + "─" * (box_width - 2) + "┐")
+        self.logger.info(format_box_line("📊 INJECTION SUMMARY"))
+        self.logger.info("├" + "─" * (box_width - 2) + "┤")
+        self.logger.info(format_box_line(f"🏁 Completed in: {elapsed:.2f}s"))
+        self.logger.info(format_box_line(f"✅ Success: {stats['success']}/{stats['total']} ({success_rate:.1f}%)"))
+        self.logger.info(format_box_line(f"❌ Failed: {stats['failed']}/{stats['total']}"))
+        self.logger.info("└" + "─" * (box_width - 2) + "┘")
         
         return stats
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Injecteur SOAP avec variabilisation')
-    parser.add_argument('endpoint', help='URL de l\'endpoint SOAP')
+    parser = argparse.ArgumentParser(description='SOAP Injector with variable substitution')
+    parser.add_argument('endpoint', help='SOAP endpoint URL')
     parser.add_argument('--soap-dir', '-d', default='./soap_templates', 
-                       help='Répertoire contenant les fichiers SOAP (défaut: ./soap_templates)')
+                       help='Directory containing SOAP files (default: ./soap_templates)')
     parser.add_argument('--count', '-c', type=int, default=1,
-                       help='Nombre de messages à envoyer (défaut: 1)')
+                       help='Number of messages to send (default: 1)')
     parser.add_argument('--delay', '-w', type=float, default=0.0,
-                       help='Délai entre envois en secondes (défaut: 0)')
+                       help='Delay between sends in seconds (default: 0)')
     parser.add_argument('--timeout', '-t', type=int, default=30,
-                       help='Timeout des requêtes HTTP (défaut: 30s)')
+                       help='HTTP request timeout (default: 30s)')
     parser.add_argument('--verbose', '-v', action='store_true',
-                       help='Mode verbose (debug)')
+                       help='Verbose mode (debug)')
     
     args = parser.parse_args()
     
@@ -269,7 +281,7 @@ def main():
             exit(0 if stats['failed'] == 0 else 1)
             
     except Exception as e:
-        logging.error(f"Erreur fatale: {e}")
+        logging.error(f"💀 Fatal error: {e}")
         exit(1)
 
 
