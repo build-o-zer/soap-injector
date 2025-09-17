@@ -12,7 +12,7 @@ A Python tool for injecting SOAP messages with automatic variable substitution. 
 
 ## Quick Start
 
-### 1. Setup Python Virtual Environment
+### Setup Python Virtual Environment
 
 ```bash
 # Create virtual environment
@@ -27,7 +27,16 @@ source .venv/bin/activate  # On Linux/macOS
 pip install requests
 ```
 
-### 2. Run the Injector
+### Setup a dockerized SOAP Endpoint (Optional) for Testing
+
+```bash
+$  docker run --detach --rm --name echo-server -p 10000:8080 -e LOG_HTTP_BODY='true' jmalloc/echo-server
+```
+
+Now you have a simple SOAP endpoint running locally on port 10000.
+This endpoint will echo back any SOAP messages you send to it, which is useful for testing this python tool.
+
+### Run the Injector
 
 ```bash
 # Send a single SOAP message
@@ -129,37 +138,6 @@ python soap_injector.py http://localhost:8080/soap --count 50 --delay 0.5
 # Long timeout for slow endpoints
 python soap_injector.py http://localhost:8080/soap --timeout 60
 ```
-
-## Development Setup
-
-1. **Clone/Setup the project**:
-
-   ```bash
-   cd soap-injector
-   ```
-
-2. **Create virtual environment**:
-
-   ```bash
-   python3 -m venv .venv
-   source .venv/bin/activate
-   ```
-
-3. **Install dependencies**:
-
-   ```bash
-   pip install requests
-   ```
-
-4. **Add your SOAP templates**:
-   - Place XML files in `soap_templates/` directory
-   - Use `{{VARIABLE_NAME}}` syntax for dynamic content
-
-5. **Test the setup**:
-
-   ```bash
-   python soap_injector.py --help
-   ```
 
 ## Output and Logging
 
