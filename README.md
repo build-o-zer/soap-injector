@@ -212,6 +212,16 @@ Use `--verbose` flag to enable debug logging for troubleshooting:
 .venv/bin/python soap_injector.py http://localhost:8080/soap --verbose
 ```
 
+## Contact
+
+If you have questions, suggestions, or need support with this SOAP Injector tool, feel free to reach out:
+
+- **Author**: Robin
+- **Repository**: [soap-injector](https://github.com/build-o-zer/soap-injector)
+- **Issues**: [GitHub Issues](https://github.com/build-o-zer/soap-injector/issues)
+
+For bug reports or feature requests, please use the GitHub Issues page. Pull requests are welcome!
+
 ## License
 
 This project is provided as-is for testing and development purposes.
